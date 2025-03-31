@@ -6,7 +6,7 @@ Implementation of the CO5300 LCD controller with [esp_lcd](https://docs.espressi
 
 | LCD controller | Communication interface | Component name |                               Link to datasheet                               |
 | :------------: | :---------------------: | :------------: | :---------------------------------------------------------------------------: |
-|     CO5300     |        SPI/QSPI         | esp_lcd_co5300 | [PDF](https://github.com/kodediy/esp_lcd_co5300/blob/main/CO5300_Datasheet_V0.00_20230328.pdf) |
+|     CO5300     |        SPI/QSPI         | esp_lcd_co5300 | [PDF](https://github.com/kodediy/esp_lcd_co5300/blob/main/CO5300_Datasheet_V0.00.pdf) |
 
 For more information on LCD, please refer to the [LCD documentation](https://docs.espressif.com/projects/esp-iot-solution/en/latest/display/lcd/index.html).
 
