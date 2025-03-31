@@ -1,8 +1,8 @@
 version: "1.0.0"
 description: ESP LCD CO5300 - main component for using CO5300 controller
-url: https://github.com/kodediy/kodeOS
-repository: https://github.com/kodediy/kodeOS.git
-issues: https://github.com/kodediy/kodeOS/issues
+url: https://github.com/kodediy/esp_lcd_co5300
+repository: https://github.com/kodediy/esp_lcd_co5300.git
+issues: https://github.com/kodediy/esp_lcd_co5300/issues
 license: Apache-2.0
 dependencies:
   idf: ">=5.0.0"
