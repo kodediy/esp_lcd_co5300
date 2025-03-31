@@ -1,6 +1,6 @@
 # ESP LCD CO5300
 
-[![Component Registry](https://components.espressif.com/components/espressif/esp_lcd_co5300/badge.svg)](https://components.espressif.com/components/espressif/esp_lcd_c05300)
+[![Component Registry](https://components.espressif.com/components/kodediy/esp_lcd_co5300/badge.svg)](https://components.espressif.com/components/kodediy/esp_lcd_c05300)
 
 Implementation of the CO5300 LCD controller with [esp_lcd](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/peripherals/lcd.html) component.
 
@@ -15,7 +15,7 @@ For more information on LCD, please refer to the [LCD documentation](https://doc
 Packages from this repository are uploaded to [Espressif's component service](https://components.espressif.com/).
 You can add them to your project via `idf.py add-dependancy`, e.g.
 ```
-    idf.py add-dependency "espressif/esp_lcd_co5300"
+    idf.py add-dependency "kodediy/esp_lcd_co5300"
 ```
 
 Alternatively, you can create `idf_component.yml`. More is in [Espressif's documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-component-manager.html).
