@@ -5,5 +5,5 @@ repository: https://github.com/kodediy/kodeOS.git
 issues: https://github.com/kodediy/kodeOS/issues
 license: Apache-2.0
 dependencies:
-  idf: ">5.0.0"
+  idf: ">=5.0.0"
   cmake_utilities: "0.*"
