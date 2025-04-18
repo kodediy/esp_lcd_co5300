@@ -1,5 +1,10 @@
 #pragma once
 
+// Versioning
+#define ESP_LCD_CO5300_VER_MAJOR (0)
+#define ESP_LCD_CO5300_VER_MINOR (1)
+#define ESP_LCD_CO5300_VER_PATCH (0)
+
 #include <stdint.h>
 
 #include "esp_lcd_panel_vendor.h"
