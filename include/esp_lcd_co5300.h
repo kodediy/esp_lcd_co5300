@@ -1,9 +1,10 @@
-#pragma once
+/*
+ * SPDX-FileCopyrightText: 2025 KODE DIY, SL
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-// Versioning
-#define ESP_LCD_CO5300_VER_MAJOR (0)
-#define ESP_LCD_CO5300_VER_MINOR (1)
-#define ESP_LCD_CO5300_VER_PATCH (0)
+#pragma once
 
 #include <stdint.h>
 
@@ -37,9 +38,6 @@ typedef struct {
                                                  *  Please refer to `vendor_specific_init_default` in source file
                                                  */
     uint16_t init_cmds_size;    /*<! Number of commands in above array */
-    struct {
-        unsigned int use_qspi_interface: 1;     /*<! Set to 1 if use QSPI interface, default is SPI interface */
-    } flags;
 } co5300_vendor_config_t;
 
 /**
@@ -77,7 +75,7 @@ esp_err_t esp_lcd_new_panel_co5300(const esp_lcd_panel_io_handle_t io, const esp
         .cs_gpio_num = cs,                                      \
         .dc_gpio_num = -1,                                      \
         .spi_mode = 0,                                          \
-        .pclk_hz = 20 * 1000 * 1000,                            \
+        .pclk_hz = 40 * 1000 * 1000,                            \
         .trans_queue_depth = 10,                                \
         .on_color_trans_done = cb,                              \
         .user_ctx = cb_ctx,                                     \

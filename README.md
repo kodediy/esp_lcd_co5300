@@ -6,7 +6,7 @@ Implementation of the CO5300 LCD controller with [esp_lcd](https://docs.espressi
 
 | LCD controller | Communication interface | Component name |                               Link to datasheet                               |
 | :------------: | :---------------------: | :------------: | :---------------------------------------------------------------------------: |
-|     CO5300     |        SPI/QSPI         | esp_lcd_co5300 | [PDF](https://github.com/kodediy/esp_lcd_co5300/blob/main/CO5300_Datasheet_V0.00.pdf) |
+|     CO5300     |        QSPI             | esp_lcd_co5300 | [PDF](https://github.com/kodediy/esp_lcd_co5300/blob/main/CO5300_Datasheet_V0.00.pdf) |
 
 For more information on LCD, please refer to the [LCD documentation](https://docs.espressif.com/projects/esp-iot-solution/en/latest/display/lcd/index.html).
 
@@ -26,7 +26,7 @@ Alternatively, you can create `idf_component.yml`. More is in [Espressif's docum
 
 ```c
     ESP_LOGI(TAG, "Initialize QSPI bus");
-    const esp_lcd_panel_io_spi_config_t io_config = CO5300_PANEL_BUS_QSPI_CONFIG(EXAMPLE_PIN_NUM_LCD_PCLK,
+    const spi_bus_config_t buscfg = CO5300_PANEL_BUS_QSPI_CONFIG(EXAMPLE_PIN_NUM_LCD_PCLK,
                                                                                  EXAMPLE_PIN_NUM_LCD_DATA0,
                                                                                  EXAMPLE_PIN_NUM_LCD_DATA1,
                                                                                  EXAMPLE_PIN_NUM_LCD_DATA2,
@@ -57,14 +57,11 @@ Alternatively, you can create `idf_component.yml`. More is in [Espressif's docum
     co5300_vendor_config_t vendor_config = {
         // .init_cmds = lcd_init_cmds,         // Only useful when `use_external_init_cmds` is set to 1
         // .init_cmds_size = sizeof(lcd_init_cmds) / sizeof(co5300_lcd_init_cmd_t),
-        .flags = {
-            .use_qspi_interface = 1,
-        },
     };
     const esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = EXAMPLE_PIN_NUM_LCD_RST,
         .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,     // Implemented by LCD command `36h`
-        .bits_per_pixel = 16,                           // Implemented by LCD command `3Ah` (16/18/24)
+        .bits_per_pixel = EXAMPLE_LCD_BIT_PER_PIXEL,    // Implemented by LCD command `3Ah` (16/18/24)
         .vendor_config = (void *)&vendor_config,
     };
     ESP_ERROR_CHECK(esp_lcd_new_panel_co5300(io_handle, &panel_config, &panel_handle));

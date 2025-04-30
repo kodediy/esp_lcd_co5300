@@ -1,5 +1,5 @@
-version: "1.0.1"
-description: ESP LCD CO5300 - main component for using CO5300 controller
+version: "1.0.2"
+description: ESP LCD CO5300 QSPI
 url: https://github.com/kodediy/esp_lcd_co5300
 repository: https://github.com/kodediy/esp_lcd_co5300.git
 issues: https://github.com/kodediy/esp_lcd_co5300/issues
@@ -7,3 +7,6 @@ license: Apache-2.0
 dependencies:
   idf: ">=5.0.0"
   cmake_utilities: "0.*"
+sbom:
+  supplier: 'Organization: KODE DIY, SL'
+  originator: 'Organization: KODE DIY, SL'

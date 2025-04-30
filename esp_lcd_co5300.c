@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 kode.
+ * SPDX-FileCopyrightText: 2025 KODE DIY, SL
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -24,7 +24,7 @@
 #define LCD_OPCODE_READ_CMD (0x03ULL)
 #define LCD_OPCODE_WRITE_COLOR (0x32ULL)
 
-static const char *TAG = "co5300";
+static const char *TAG = "CO5300 Driver";
 
 static esp_err_t panel_co5300_del(esp_lcd_panel_t *panel);
 static esp_err_t panel_co5300_reset(esp_lcd_panel_t *panel);
@@ -50,7 +50,6 @@ typedef struct
     uint16_t init_cmds_size;
     struct
     {
-        unsigned int use_qspi_interface : 1;
         unsigned int reset_level : 1;
     } flags;
 } co5300_panel_t;
@@ -98,10 +97,6 @@ esp_err_t esp_lcd_new_panel_co5300(const esp_lcd_panel_io_handle_t io, const esp
         // each color component (R/G/B) should occupy the 6 high bits of a byte, which means 3 full bytes are required for a pixel
         fb_bits_per_pixel = 24;
         break;
-    case 24: // RGB888
-        co5300->colmod_val = 0x77;
-        fb_bits_per_pixel = 24;
-        break;
     default:
         ESP_GOTO_ON_FALSE(false, ESP_ERR_NOT_SUPPORTED, err, TAG, "unsupported pixel width");
         break;
@@ -109,15 +104,14 @@ esp_err_t esp_lcd_new_panel_co5300(const esp_lcd_panel_io_handle_t io, const esp
 
     co5300->io = io;
     co5300->reset_gpio_num = panel_dev_config->reset_gpio_num;
+    co5300->flags.reset_level = panel_dev_config->flags.reset_active_high;
     co5300->fb_bits_per_pixel = fb_bits_per_pixel;
     co5300_vendor_config_t *vendor_config = (co5300_vendor_config_t *)panel_dev_config->vendor_config;
     if (vendor_config)
     {
         co5300->init_cmds = vendor_config->init_cmds;
         co5300->init_cmds_size = vendor_config->init_cmds_size;
-        co5300->flags.use_qspi_interface = vendor_config->flags.use_qspi_interface;
     }
-    co5300->flags.reset_level = panel_dev_config->flags.reset_active_high;
     co5300->base.del = panel_co5300_del;
     co5300->base.reset = panel_co5300_reset;
     co5300->base.init = panel_co5300_init;
@@ -149,23 +143,19 @@ err:
 
 static esp_err_t tx_param(co5300_panel_t *co5300, esp_lcd_panel_io_handle_t io, int lcd_cmd, const void *param, size_t param_size)
 {
-    if (co5300->flags.use_qspi_interface)
-    {
-        lcd_cmd &= 0xff;
-        lcd_cmd <<= 8;
-        lcd_cmd |= LCD_OPCODE_WRITE_CMD << 24;
-    }
+    lcd_cmd &= 0xff;
+    lcd_cmd <<= 8;
+    lcd_cmd |= LCD_OPCODE_WRITE_CMD << 24;
+
     return esp_lcd_panel_io_tx_param(io, lcd_cmd, param, param_size);
 }
 
 static esp_err_t tx_color(co5300_panel_t *co5300, esp_lcd_panel_io_handle_t io, int lcd_cmd, const void *param, size_t param_size)
 {
-    if (co5300->flags.use_qspi_interface)
-    {
-        lcd_cmd &= 0xff;
-        lcd_cmd <<= 8;
-        lcd_cmd |= LCD_OPCODE_WRITE_COLOR << 24;
-    }
+    lcd_cmd &= 0xff;
+    lcd_cmd <<= 8;
+    lcd_cmd |= LCD_OPCODE_WRITE_COLOR << 24;
+
     return esp_lcd_panel_io_tx_color(io, lcd_cmd, param, param_size);
 }
 
@@ -206,19 +196,19 @@ static esp_err_t panel_co5300_reset(esp_lcd_panel_t *panel)
 
 static const co5300_lcd_init_cmd_t vendor_specific_init_default[] = {
     //  {cmd, { data }, data_size, delay_ms}
-    {0x11, (uint8_t []){0x00}, 0, 120}, // Sleep out + 120ms delay
-    {0x34, (uint8_t []){0x00}, 1, 0}, // Tearing effect off
-    {0xFE, (uint8_t []){0x00}, 1, 0}, // Page switch
-    {0xC4, (uint8_t []){0x80}, 1, 0}, // SPI Mode
-    {0x3A, (uint8_t []){0x55}, 1, 0}, // Pixel format 16bit/pixel
-    {0x53, (uint8_t []){0x20}, 1, 0}, // Write control display1
-    {0x63, (uint8_t []){0xFF}, 1, 0}, // Write Display Brightness Value in HBM Mode
-    {0x2A, (uint8_t []){0x00, 0x16, 0x01, 0xAF}, 4, 0}, // Column Address Set
-    {0x2B, (uint8_t []){0x00, 0x00, 0x01, 0xF5}, 4, 0}, // Page Address Set
-    {0x29, (uint8_t []){0x00}, 0, 0},  // Display on
-    {0x51, (uint8_t []){0xFF}, 1, 0},  // Write Display Brightness Value in Normal Mode
-    {0x58, (uint8_t []){0x00}, 1, 0},  // High contrast mode OFF
-    {0x00, (uint8_t []){0x00}, 0, 10}, // End of commands
+    {0x11, (uint8_t[]){0x00}, 0, 120},                 // Sleep out + 120ms delay
+    {0x34, (uint8_t[]){0x00}, 1, 0},                   // Tearing effect off
+    {0xFE, (uint8_t[]){0x00}, 1, 0},                   // Page switch
+    {0xC4, (uint8_t[]){0x80}, 1, 0},                   // SPI Mode
+    {0x3A, (uint8_t[]){0x55}, 1, 0},                   // Pixel format 16bit/pixel
+    {0x53, (uint8_t[]){0x20}, 1, 0},                   // Write control display1
+    {0x63, (uint8_t[]){0xFF}, 1, 0},                   // Write Display Brightness Value in HBM Mode
+    {0x2A, (uint8_t[]){0x00, 0x16, 0x01, 0xAF}, 4, 0}, // Column Address Set
+    {0x2B, (uint8_t[]){0x00, 0x00, 0x01, 0xF5}, 4, 0}, // Page Address Set
+    {0x29, (uint8_t[]){0x00}, 0, 0},                   // Display on
+    {0x51, (uint8_t[]){0xFF}, 1, 0},                   // Write Display Brightness Value in Normal Mode
+    {0x58, (uint8_t[]){0x00}, 1, 0},                   // High contrast mode OFF
+    {0x00, (uint8_t[]){0x00}, 0, 10},                  // End of commands
 };
 
 static esp_err_t panel_co5300_init(esp_lcd_panel_t *panel)
@@ -230,15 +220,11 @@ static esp_err_t panel_co5300_init(esp_lcd_panel_t *panel)
     bool is_cmd_overwritten = false;
 
     ESP_RETURN_ON_ERROR(tx_param(co5300, io, LCD_CMD_MADCTL, (uint8_t[]){
-                                                                 co5300->madctl_val,
-                                                             },
-                                 1),
-                        TAG, "send command failed");
+        co5300->madctl_val, 
+    }, 1), TAG, "send command failed");
     ESP_RETURN_ON_ERROR(tx_param(co5300, io, LCD_CMD_COLMOD, (uint8_t[]){
-                                                                 co5300->colmod_val,
-                                                             },
-                                 1),
-                        TAG, "send command failed");
+        co5300->colmod_val,
+    }, 1), TAG, "send command failed");
 
     // vendor specific initialization, it can be different between manufacturers
     // should consult the LCD supplier for initialization sequence code
@@ -276,8 +262,7 @@ static esp_err_t panel_co5300_init(esp_lcd_panel_t *panel)
             ESP_LOGW(TAG, "The %02Xh command has been used and will be overwritten by external initialization sequence", init_cmds[i].cmd);
         }
 
-        ESP_RETURN_ON_ERROR(tx_param(co5300, io, init_cmds[i].cmd, init_cmds[i].data, init_cmds[i].data_bytes), TAG,
-                            "send command failed");
+        ESP_RETURN_ON_ERROR(tx_param(co5300, io, init_cmds[i].cmd, init_cmds[i].data, init_cmds[i].data_bytes), TAG, "send command failed");
         vTaskDelay(pdMS_TO_TICKS(init_cmds[i].delay_ms));
     }
     ESP_LOGD(TAG, "send init commands success");
@@ -298,21 +283,17 @@ static esp_err_t panel_co5300_draw_bitmap(esp_lcd_panel_t *panel, int x_start, i
 
     // define an area of frame memory where MCU can access
     ESP_RETURN_ON_ERROR(tx_param(co5300, io, LCD_CMD_CASET, (uint8_t[]){
-                                                                (x_start >> 8) & 0xFF,
-                                                                x_start & 0xFF,
-                                                                ((x_end - 1) >> 8) & 0xFF,
-                                                                (x_end - 1) & 0xFF,
-                                                            },
-                                 4),
-                        TAG, "send command failed");
+        (x_start >> 8) & 0xFF,
+        x_start & 0xFF,
+        ((x_end - 1) >> 8) & 0xFF,
+        (x_end - 1) & 0xFF,
+    }, 4), TAG, "send command failed");
     ESP_RETURN_ON_ERROR(tx_param(co5300, io, LCD_CMD_RASET, (uint8_t[]){
-                                                                (y_start >> 8) & 0xFF,
-                                                                y_start & 0xFF,
-                                                                ((y_end - 1) >> 8) & 0xFF,
-                                                                (y_end - 1) & 0xFF,
-                                                            },
-                                 4),
-                        TAG, "send command failed");
+        (y_start >> 8) & 0xFF,
+        y_start & 0xFF,
+        ((y_end - 1) >> 8) & 0xFF,
+        (y_end - 1) & 0xFF,
+    }, 4), TAG, "send command failed");
     // transfer frame buffer
     size_t len = (x_end - x_start) * (y_end - y_start) * co5300->fb_bits_per_pixel / 8;
     tx_color(co5300, io, LCD_CMD_RAMWR, color_data, len);
@@ -351,12 +332,14 @@ static esp_err_t panel_co5300_mirror(esp_lcd_panel_t *panel, bool mirror_x, bool
     {
         co5300->madctl_val &= ~BIT(6);
     }
-    if (mirror_y)
-    {
-        ESP_LOGE(TAG, "mirror_y is not supported by this panel");
-        ret = ESP_ERR_NOT_SUPPORTED;
+    if (mirror_y) {
+        co5300->madctl_val |= BIT(7);
+    } else {
+        co5300->madctl_val &= ~BIT(7);
     }
-    ESP_RETURN_ON_ERROR(tx_param(co5300, io, LCD_CMD_MADCTL, (uint8_t[]){co5300->madctl_val}, 1), TAG, "send command failed");
+    ESP_RETURN_ON_ERROR(tx_param(co5300, io, LCD_CMD_MADCTL, (uint8_t[]){
+        co5300->madctl_val
+    }, 1), TAG, "send command failed");
     return ret;
 }
 
